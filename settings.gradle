@@ -1,0 +1,4 @@
+include ':LiveDataBus'
+include ':LiveEventBus'
+include ':app'
+rootProject.name = "LiveBus"
