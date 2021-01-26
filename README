@@ -1,4 +1,10 @@
-LiveDataBus是com.jeremyliao:live-event-bus依赖中的源码。该代码Domo是根据自己的理解将此框架进行优化和精简,适合自己的才是最好的。
+# 前言
+该Demo是一个通信框架，根据本人对LiveData的理解，对com.jeremyliao:live-event-bus框架进行了自定义的修改。
+module LiveDataBus是个人代码,module LiveEventBus中是com.jeremyliao:live-event-bus原有代码，两者有兴趣大家可以进行比对分析！
+框架虽然不是我的原创，但是确实自己深刻理解后进行适合自己风格的框架封装，适合自己的才是最好的。
 
+# 框架分析
+框架分为ExternalLiveData、LiveEventBus、external、live四个模块。其中ExternalLiveData、LiveEventBus两个类是框架核心;
+external是自己封装的两个对外类,后面框架的调用及初始化基本只涉及external包中的两个类;live包中的类是框架辅助非核心类。
 
-# LiveDataBus结构
+## ExternalLiveData

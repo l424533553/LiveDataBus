@@ -35,7 +35,7 @@ public class ExternalLiveData<T> extends MutableLiveData<T> {
     public void observe(@NonNull LifecycleOwner owner, @NonNull Observer<? super T> observer) {
         if (owner.getLifecycle().getCurrentState() != State.DESTROYED) {
             try {
-                LifecycleBoundObserver wrapper = new LifecycleBoundObserver(owner, observer);
+                ExternalLifecycleBoundObserver wrapper = new ExternalLifecycleBoundObserver(owner, observer);
                 LifecycleBoundObserver existing = (LifecycleBoundObserver) this.callMethodPutIfAbsent(observer, wrapper);
                 if (existing != null && !existing.isAttachedTo(owner)) {
                     throw new IllegalArgumentException("Cannot add the same observer with different lifecycles");
@@ -44,7 +44,6 @@ public class ExternalLiveData<T> extends MutableLiveData<T> {
                 if (existing != null) {
                     return;
                 }
-
                 owner.getLifecycle().addObserver(wrapper);
             } catch (Exception var5) {
                 var5.printStackTrace();
@@ -68,6 +67,9 @@ public class ExternalLiveData<T> extends MutableLiveData<T> {
         return fieldObservers.get(this);
     }
 
+    /**通过反射的方式拿到LiveData中的mObservers
+     *
+     */
     private Object callMethodPutIfAbsent(Object observer, Object wrapper) throws Exception {
         Object mObservers = this.getFieldObservers();
         Class<?> classOfSafeIterableMap = mObservers.getClass();
@@ -110,7 +112,6 @@ public class ExternalLiveData<T> extends MutableLiveData<T> {
     private final Map<Observer<T>, LiveEventObserverWrapper<T>> observerMap = new HashMap<>();
     /**
      * 非黏性永久注册
-     * @param observer
      */
     @MainThread
     public void observeForeverInternal(@NonNull Observer<T> observer) {

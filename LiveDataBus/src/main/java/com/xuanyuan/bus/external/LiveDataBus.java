@@ -5,9 +5,8 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
-
 import androidx.lifecycle.LiveEventBus;
+import androidx.lifecycle.Observer;
 
 
 /**
