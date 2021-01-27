@@ -1,4 +1,92 @@
 
+在博客[《LiveData原理深入浅出，透过源码看本质 》](https://blog.csdn.net/luo_boke/article/details/113173672)中通过源码的详细分析，已经说明了LiveData的原理和使用流程。
+
+通过自己对LiveData的理解，封装名为LiveDataBus的通信框架。框架为纯Kotlin代码框架,其实框架实现很简单，原理完全基于LiveData。名字虽与网络上的LiveDataBus一样，功能也基本一致，但其内涵完全不一样，且看我一一剖析。
+
+
+使用非常简单步骤分为：1.注册监听；2.数据更新后发布；3.收更新数据进行处理；4.注销监听。 使用流程如下代码，超级简单。
+
+```java
+public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        findViewById(R.id.btnSendOne).setOnClickListener(v ->
+                // 2.数据更改后，数据发布
+                LiveDataBus.sendLiveString("单次点击")
+        );
+
+        findViewById(R.id.btnMultiData).setOnClickListener(v -> {
+                    new Thread(() -> {
+                        int count = 0;
+                        while (count < 100) {
+                            LiveDataBus.sendLiveString("复数点击");
+                            try {
+                                Thread.sleep(400);
+                                count++;
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
+                }
+        );
+
+        //1.注册监听 observeForever(observer)方式注册
+        LiveDataBus.observeForever("LIVE_EVENT_BUS_COMMON_LIVE_STRING", observer);
+    }
+
+    private final Observer<String> observer = s ->
+            // 3. 数据处理
+            Log.i("111111", s);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //4.注销观察
+        LiveDataBus.removeObserver("LIVE_EVENT_BUS_COMMON_LIVE_STRING", observer);
+    }
+}
+```
+
+
+注意：
+1. 观察者的注册方式有两种observe(owner, observer)和observeForever(observer)。如果采用了observe(owner, observer)方式注册，则不必进行第4步注销观察，当Activity处于DESTORY状态时observer会自动注销观察。
+
+```java
+     //1. 注册监听 observe(owner, observer)方式注册
+        LiveDataBus.observe(LiveDataBus.LIVE_EVENT_BUS_COMMON_LIVE_STRING, this, observer);
+        //1.注册监听 observeForever(observer)方式注册
+        LiveDataBus.observeForever("LIVE_EVENT_BUS_COMMON_LIVE_STRING", observer);
+```
+
+2. 数据更新发布可以在UI线程中执行，也可在非UI线程中执行
+```java
+        findViewById(R.id.btnSendOne).setOnClickListener(v ->
+                // 2.数据更改后，数据发布
+                LiveDataBus.sendLiveString("UI线程中发布数据更新")
+        );
+
+        findViewById(R.id.btnMultiData).setOnClickListener(v -> {
+                    new Thread(() -> {
+                        int count = 0;
+                        while (count < 100) {
+                            LiveDataBus.sendLiveString("非UI线程中发布数据更新");
+                            try {
+                                Thread.sleep(400);
+                                count++;
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
+                }
+        );
+```
+
+*************************************************************************
+
 LiveDataBus 是我自定义封装的框架,其实原理很简单，只要弄懂LiveData就so easy!
 LiveEventBus是com.jeremyliao:live-event-bus依赖中的源码。
 
