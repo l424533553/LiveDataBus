@@ -8,7 +8,7 @@ import androidx.lifecycle.Observer;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.xuanyuan.bus.external.LiveDataBus;
+import com.xuanyuan.bus.LiveDataBus;
 import com.xuanyuan.bus.R;
 
 /**
@@ -21,16 +21,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LifecycleOwner ffsd;
         findViewById(R.id.btnSendOne).setOnClickListener(v ->
-                LiveDataBus.sendLiveString("单次点击")
+                // 2.数据更改后，数据发布
+                LiveDataBus.sendLiveString("UI线程中发布数据更新")
         );
 
         findViewById(R.id.btnMultiData).setOnClickListener(v -> {
                     new Thread(() -> {
                         int count = 0;
                         while (count < 100) {
-                            LiveDataBus.sendLiveString("复数点击");
+                            LiveDataBus.sendLiveString("非UI线程中发布数据更新");
                             try {
                                 Thread.sleep(400);
                                 count++;
@@ -42,12 +42,20 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
-        //纯String类型数据通信
-        LiveDataBus.observe(LiveDataBus.LIVE_EVENT_BUS_COMMON_LIVE_STRING, String.class, this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Log.i("111111", s);
-            }
-        });
+//      //1. 注册监听 observe(owner, observer)方式注册
+//      LiveDataBus.observe(LiveDataBus.LIVE_EVENT_BUS_COMMON_LIVE_STRING, this, observer);
+        //1.注册监听 observeForever(observer)方式注册
+        LiveDataBus.observeForever("LIVE_EVENT_BUS_COMMON_LIVE_STRING", observer);
+    }
+
+    private final Observer<String> observer = s ->
+            // 3. 数据处理
+            Log.i("111111", s);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //4.注销观察
+        LiveDataBus.removeObserver("LIVE_EVENT_BUS_COMMON_LIVE_STRING", observer);
     }
 }
+

@@ -2,7 +2,7 @@ package com.xuanyuan.demo;
 
 import android.app.Application;
 
-import com.xuanyuan.bus.external.LiveDataBus;
+import com.xuanyuan.bus.LiveDataBus;
 
 /**
  * @author 罗发新
@@ -21,7 +21,7 @@ public class MyApplication extends Application {
 
         super.onCreate();
         LiveDataBus.supportBroadcast(this);
-        LiveDataBus.lifecycleObserverAlwaysActive(false);
+
 
     }
 

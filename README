@@ -1,4 +1,7 @@
-LiveDataBus是com.jeremyliao:live-event-bus依赖中的源码。该代码Domo是根据自己的理解将此框架进行优化和精简,适合自己的才是最好的。
+
+LiveDataBus 是我自定义封装的框架,其实原理很简单，只要弄懂LiveData就so easy!
+LiveEventBus是com.jeremyliao:live-event-bus依赖中的源码。
+
+两者的区别有兴趣可以自己作比较哦！
 
 
-# LiveDataBus结构

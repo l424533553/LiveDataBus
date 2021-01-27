@@ -1,13 +1,10 @@
-package com.xuanyuan.bus.external;
+package com.xuanyuan.bus
 
-import android.content.Context;
-import android.text.TextUtils;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
-
-import androidx.lifecycle.LiveEventBus;
+import android.content.Context
+import android.text.TextUtils
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import com.xuanyuan.bus.LiveEventBus.Companion.get
 
 
 /**
@@ -15,79 +12,75 @@ import androidx.lifecycle.LiveEventBus;
  * 时间：2019/6/11 0011    星期二
  * 邮件：424533553@qq.com
  */
-public class LiveDataBus {
+object LiveDataBus {
+    var LIVE_EVENT_BUS_COMMON_LIVE_BEAN = "LIVE_EVENT_BUS_COMMON_LIVE_BEAN"
 
-    @NonNull
-    public static String LIVE_EVENT_BUS_COMMON_LIVE_BEAN = "LIVE_EVENT_BUS_COMMON_LIVE_BEAN";
     /**
      * 只接受接单的String
      */
-    @NonNull
-    public static String LIVE_EVENT_BUS_COMMON_LIVE_STRING = "LIVE_EVENT_BUS_COMMON_LIVE_STRING";
+    @JvmField
+    var LIVE_EVENT_BUS_COMMON_LIVE_STRING = "LIVE_EVENT_BUS_COMMON_LIVE_STRING"
 
-
-    public static <T> void sendLiveBean(@NonNull String eventType, @NonNull T data) {
+    @JvmStatic
+    fun <T> sendLiveBean(eventType: String, data: T) {
         if (TextUtils.isEmpty(eventType)) {
-            return;
+            return
         }
-        LiveEventBean<T> liveEventBean = new LiveEventBean<>();
-        liveEventBean.setEventType(eventType);
-        liveEventBean.setT(data);
-        LiveDataBus.post(LiveDataBus.LIVE_EVENT_BUS_COMMON_LIVE_BEAN, LiveEventBean.class, liveEventBean);
+        val liveEventBean = LiveEventBean<T>()
+        liveEventBean.eventType = eventType
+        liveEventBean.t = data
+        post(LIVE_EVENT_BUS_COMMON_LIVE_BEAN, liveEventBean)
     }
 
-    public static void sendLiveString(@NonNull String eventType) {
-        LiveDataBus.post(LiveDataBus.LIVE_EVENT_BUS_COMMON_LIVE_STRING, String.class, eventType);
+    @JvmStatic
+    fun sendLiveString(eventType: String) {
+        post(LIVE_EVENT_BUS_COMMON_LIVE_STRING, eventType)
     }
 
-    public static void sendLiveString(@NonNull String eventType, long delay) {
-        LiveDataBus.postDelay(LiveDataBus.LIVE_EVENT_BUS_COMMON_LIVE_STRING, String.class, eventType, delay);
+    @JvmStatic
+    fun sendLiveString(eventType: String, delay: Long) {
+        postDelay(LIVE_EVENT_BUS_COMMON_LIVE_STRING, eventType, delay)
     }
 
-    public static <T> void post(@NonNull String key, @NonNull Class<T> type, @NonNull T value) {
-        LiveEventBus.get().with(key, type).post(value);
+    @JvmStatic
+    fun <T> post(key: String, value: T) {
+        get().with<T>(key).post(value)
     }
 
-    public static void liveDataBusInit(@NonNull Context context) {
-        LiveEventBus.get().supportBroadcast(context);
+
+    @JvmStatic
+    fun <T> postDelay(key: String, value: T, delay: Long) {
+        get().with<T>(key).postDelay(value, delay)
     }
 
-    /**
-     * @param isAlwaysActive 是否一直处于活动状态，即使activity处于后台也能接受到消息
-     */
-    public static void liveDataBusInit(boolean isAlwaysActive) {
-        LiveEventBus.get().lifecycleObserverAlwaysActive(isAlwaysActive);
+    @JvmStatic
+    fun <T> sendBroad(key: String, value: T) {
+        get().with<T>(key).broadcast(value)
     }
 
-    /**
-     *
-     */
-    public static <T> void postDelay(@NonNull String key, @NonNull Class<T> type, @NonNull T value, long delay) {
-        LiveEventBus.get().with(key, type).postDelay(value, delay);
+    @JvmStatic
+    fun <T> observe(key: String, owner: LifecycleOwner, observer: Observer<T>) {
+        get().with<T>(key).observe(owner, observer)
     }
 
-    public static <T> void observe(@NonNull String key, @NonNull Class<T> type, @NonNull LifecycleOwner owner, @NonNull Observer<T> observer) {
-        LiveEventBus.get().with(key, type).observe(owner, observer);
+    @JvmStatic
+    fun <T> observeForever(key: String, observer: Observer<T>) {
+        get().with<T>(key).observeForever(observer)
     }
 
-    public static <T> void observeForever(@NonNull String key, @NonNull Class<T> type, @NonNull Observer<T> observer) {
-        LiveEventBus.get().with(key, type).observeForever(observer);
+    @JvmStatic
+    fun <T> removeObserver(key: String, observer: Observer<T>) {
+        get().with<T>(key).removeObserver(observer)
     }
 
-    public static <T> void removeObserver(@NonNull String key, @NonNull Class<T> type, @NonNull Observer<T> observer) {
-        LiveEventBus.get().with(key, type).removeObserver(observer);
-
+    @JvmStatic
+    fun supportBroadcast(context: Context) {
+        get().supportBroadcast(context)
     }
+}
 
-    public static void supportBroadcast(@NonNull Context context) {
-        LiveEventBus.get().supportBroadcast(context);
-    }
-
-    /**
-     * @param active true：总是进行监听，与生命周期无关 ; false：在onResume状态可以接收消息
-     */
-    public static void lifecycleObserverAlwaysActive(boolean active) {
-        LiveEventBus.get().lifecycleObserverAlwaysActive(active);
-    }
-
+class LiveEventBean<T> {
+    var eventType: String? = null
+    var t: T? = null
+    var msg: String? = null
 }
